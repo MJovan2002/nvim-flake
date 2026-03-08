@@ -148,7 +148,12 @@
   plugins = {
     arrow = {
       enable = true;
-      luaConfig.post = "buffer_leader_key = 'm'";
+      settings = {
+        separate_by_branch = true;
+        buffer_leader_key = "m";
+        show_icons = true;
+        per_buffer_config.satellite.enable = true;
+      };
     };
     auto-session.enable = true;
     comment.enable = true;

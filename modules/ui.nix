@@ -50,21 +50,30 @@
       enable = true;
       settings = {
         extensions = [ "oil" ];
-        sections.lualine_y = [
-          {
-            __unkeyed = (lib.nixvim.mkRaw "require('noice').api.status.search.get");
-            cond = (lib.nixvim.mkRaw "require('noice').api.status.search.has");
-          }
-          {
-            __unkeyed = (lib.nixvim.mkRaw "require('noice').api.status.mode.get");
-            cond = (lib.nixvim.mkRaw "require('noice').api.status.mode.has");
-          }
-          # {
-          #   __unkeyed = (lib.nixvim.mkRaw "require('noice').api.status.command.get");
-          #   cond = (lib.nixvim.mkRaw "require('noice').api.status.command.has");
-          # }
-          { __unkeyed = "progress"; }
-        ];
+        sections = {
+          lualine_c = [
+            (lib.nixvim.mkRaw ''
+              function()
+                return require('arrow.statusline').text_for_statusline_with_icons()
+              end
+            '')
+          ];
+          lualine_y = [
+            {
+              __unkeyed = lib.nixvim.mkRaw "require('noice').api.status.search.get";
+              cond = lib.nixvim.mkRaw "require('noice').api.status.search.has";
+            }
+            {
+              __unkeyed = lib.nixvim.mkRaw "require('noice').api.status.mode.get";
+              cond = lib.nixvim.mkRaw "require('noice').api.status.mode.has";
+            }
+            # {
+            #   __unkeyed = (lib.nixvim.mkRaw "require('noice').api.status.command.get");
+            #   cond = (lib.nixvim.mkRaw "require('noice').api.status.command.has");
+            # }
+            { __unkeyed = "progress"; }
+          ];
+        };
       };
     };
     # nvim-ufo.enable = true;
