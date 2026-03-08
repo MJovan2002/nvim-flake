@@ -156,7 +156,24 @@
         per_buffer_config.satellite.enable = true;
       };
     };
-    auto-session.enable = true;
+    auto-session = {
+      enable = true;
+      settings = {
+        git_use_branch_name = true;
+        git_auto_restore_on_branch_change = true;
+        post_restore_cmds = [
+          {
+            __raw = ''
+              function()
+                require("arrow.git").refresh_git_branch()
+                require("arrow.persist").load_cache_file() 
+              end
+            '';
+          }
+        ];
+      };
+    };
+
     comment.enable = true;
     fugit2.enable = true;
     # hardtime.enable = true;
