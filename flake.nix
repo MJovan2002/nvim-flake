@@ -46,7 +46,7 @@
           shellHook = "exec fish";
           buildInputs = [ (defaultNvim pkgs) ];
         };
-        formatter = pkgs.nixfmt-rfc-style;
+        formatter = pkgs.nixfmt;
       }
     );
 }
