@@ -38,6 +38,8 @@
       enable = true;
       settings = {
         extra_groups = [
+          "NormalFloat"
+          "FloatBorder"
         ];
         exclude_groups = [
           "CursorLine"
