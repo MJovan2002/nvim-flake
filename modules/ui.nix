@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   ...
 }:
 {
@@ -40,6 +41,8 @@
         extra_groups = [
           "NormalFloat"
           "FloatBorder"
+          "UfoFoldedBg"
+          "UfoFoldedFg"
         ];
         exclude_groups = [
           "CursorLine"
@@ -78,14 +81,20 @@
         };
       };
     };
-    # nvim-ufo.enable = true;
-    # origami = {
-    #   enable = true;
-    #   settings.foldKeymaps.setup = true;
-    # };
+    nvim-ufo = {
+      enable = true;
+      settings.preview = {
+        win_config.winblend = 0;
+        mappings = {
+          scrollU = "<C-u>";
+          scrollD = "<C-d>";
+          jumpTop = "[";
+          jumpBot = "]";
+        };
+      };
+    };
     tiny-inline-diagnostic.enable = true;
     oil-git-status.enable = true;
-    scrollview.enable = true;
   };
 
   keymaps = [
@@ -101,12 +110,19 @@
       action = "<Cmd>BufferLineCyclePrev<CR>";
       options.desc = "Previous Buffer";
     }
-    # {
-    #   mode = "n";
-    #   key = "zp";
-    #   action = "<Cmd>lua require('ufo').peekFoldedLinesUnderCursor()<CR>";
-    #   options.desc = "Peek fold";
-    # }
+    {
+      mode = "n";
+      key = "K";
+      action = lib.nixvim.mkRaw ''
+        function()
+          local winid = require('ufo').peekFoldedLinesUnderCursor()
+          if not winid then
+            vim.lsp.buf.hover()
+          end
+        end
+      '';
+      options.desc = "Peek fold";
+    }
   ];
 
   autoCmd = [
@@ -123,5 +139,9 @@
       ];
       callback = lib.nixvim.mkRaw "vim.lsp.buf.clear_references";
     }
+  ];
+
+  extraPlugins = [
+    pkgs.vimPlugins.satellite-nvim
   ];
 }

@@ -32,6 +32,11 @@
     wrap = false;
     # statuscolumn = "%!v:lua.require'snacks.statuscolumn'.get()";
     mousemoveevent = true;
+    # foldmethod = "expr";
+    # foldexpr = "v:lua.vim.lsp.foldexpr()";
+    foldlevel = 99;
+    foldlevelstart = 99;
+    foldenable = true;
   };
 
   keymaps = [
