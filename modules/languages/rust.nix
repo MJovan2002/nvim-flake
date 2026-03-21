@@ -3,6 +3,7 @@ if languages.rust or null == null then
   { }
 else
   {
+    dependencies.rust-analyzer.packageFallback = true;
     plugins = {
       lsp.servers = {
         taplo.enable = true;
