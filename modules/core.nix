@@ -32,6 +32,7 @@
     wrap = false;
     # statuscolumn = "%!v:lua.require'snacks.statuscolumn'.get()";
     mousemoveevent = true;
+    sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions";
     # foldmethod = "expr";
     # foldexpr = "v:lua.vim.lsp.foldexpr()";
     foldlevel = 99;
@@ -185,7 +186,14 @@
     # hex.enable = true;
     noice = {
       enable = true;
-      settings.notify.enabled = false;
+      settings = {
+        notify.enabled = false;
+        lsp.override = {
+          "vim.lsp.util.convert_input_to_markdown_lines" = true;
+          "vim.lsp.util.stylize_markdown" = true;
+          "cmp.entry.get_documentation" = true;
+        };
+      };
     };
     nvim-autopairs.enable = true;
     oil.enable = true;

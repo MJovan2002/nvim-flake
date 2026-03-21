@@ -9,7 +9,7 @@
       bigfile.enabled = true;
       git.enabled = true;
       lazygit.enable = true;
-      notifier.nabled = true;
+      notifier.enabled = true;
       notify.enabled = true;
       indent.enabled = true;
       input.enabled = true;
