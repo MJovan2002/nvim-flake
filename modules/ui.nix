@@ -7,10 +7,6 @@
   colorschemes.vscode.enable = true;
 
   plugins = {
-    dashboard = {
-      enable = true;
-      settings.theme = "hyper";
-    };
     bufferline = {
       enable = true;
       settings.options = {
