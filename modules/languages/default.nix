@@ -73,33 +73,6 @@
     keymaps = [
       {
         mode = "n";
-        key = "<leader>ll";
-        action = "<cmd>lua require('lsp_lines').toggle()<CR>";
-        options.desc = "Toggle Lines";
-      }
-      {
-        mode = [
-          "n"
-          "v"
-        ];
-        key = "<leader>la";
-        action = "<cmd>lua require('actions-preview').code_actions()<CR>";
-        options.desc = "Lsp Code Actions";
-      }
-      {
-        mode = "n";
-        key = "<leader>lr";
-        action = "<cmd>lua vim.lsp.buf.rename()<CR>";
-        options.desc = "Lsp Rename";
-      }
-      {
-        mode = "n";
-        key = "gd";
-        action = "<cmd>lua Snacks.picker.lsp_definitions()<CR>";
-        options.desc = "Lsp Goto Definition";
-      }
-      {
-        mode = "n";
         key = "<leader>ld";
         action = "<cmd>lua vim.diagnostic.open_float()<CR>";
         options.desc = "Hover diagnostic";
@@ -140,15 +113,25 @@
         action = "<cmd>lua vim.diagnostic.goto_prev()<CR>";
         options.desc = "Prev diagnostic";
       }
-      {
-        mode = "n";
-        key = "<leader><space>";
-        action = "<cmd>lua vim.lsp.codelens.run()<CR>";
-        options.desc = "Run";
-      }
     ];
 
     autoCmd = [
+      {
+        event = "LspAttach";
+        callback.__raw = ''
+          function(args)
+            local buf = args.buf
+            local map = function(mode, key, action, desc)
+              vim.keymap.set(mode, key, action, { buffer = buf, desc = desc })
+            end
+            map("n", "<leader>ll", "<cmd>lua require('lsp_lines').toggle()<CR>", "Toggle Lines")
+            map({ "n", "v" }, "<leader>la", "<cmd>lua require('actions-preview').code_actions()<CR>", "Lsp Code Actions")
+            map("n", "<leader>lr", vim.lsp.buf.rename, "Lsp Rename")
+            map("n", "gd", "<cmd>lua Snacks.picker.lsp_definitions()<CR>", "Lsp Goto Definition")
+            map("n", "<leader><space>", vim.lsp.codelens.run, "Run")
+          end
+        '';
+      }
       {
         event = [
           "BufEnter"
