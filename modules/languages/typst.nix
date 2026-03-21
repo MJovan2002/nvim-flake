@@ -1,10 +1,7 @@
-{ languages, ... }:
-if languages.typst or null == null then
-  { }
-else
-  {
-    plugins = {
-      lsp.servers.tinymist.enable = true;
-      typst-preview.enable = true;
-    };
-  }
+{ config, lib, ... }:
+lib.mkIf config.languages.typst.enable {
+  plugins = {
+    lsp.servers.tinymist.enable = true;
+    typst-preview.enable = true;
+  };
+}

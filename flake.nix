@@ -3,50 +3,60 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
     nixvim.url = "github:nix-community/nixvim";
+    flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
   outputs =
-    {
-      nixpkgs,
-      flake-utils,
-      nixvim,
-      ...
-    }:
-    let
-      mkNvim =
-        {
-          pkgs,
-          languages,
-        }:
-        nixvim.legacyPackages."${pkgs.stdenv.hostPlatform.system}".makeNixvimWithModule {
-          inherit pkgs;
-          module = ./modules;
-          extraSpecialArgs = {
-            inherit languages;
+    { self, flake-parts, ... }@inputs:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
+
+      imports = [ inputs.nixvim.flakeModules.default ];
+
+      nixvim = {
+        packages.enable = true;
+        checks.enable = true;
+      };
+
+      flake = {
+        nixvimModules.default = ./modules;
+        lib.mkNvim =
+          { system, languages }:
+          inputs.nixvim.lib.evalNixvim {
+            inherit system;
+            modules = [
+              self.nixvimModules.default
+              { languages = languages; }
+            ];
           };
+      };
+
+      perSystem =
+        { system, self', ... }:
+        let
+          pkgs = inputs.nixpkgs.legacyPackages.${system};
+        in
+        {
+          nixvimConfigurations.default = inputs.nixvim.lib.evalNixvim {
+            inherit system;
+            modules = [
+              self.nixvimModules.default
+              { languages.nix.enable = true; }
+            ];
+          };
+
+          devShells.default = pkgs.mkShell {
+            shellHook = "exec fish";
+            buildInputs = [ self'.packages.default ];
+          };
+
+          formatter = pkgs.nixfmt;
         };
-      defaultNvim =
-        pkgs:
-        mkNvim {
-          inherit pkgs;
-          languages.nix = true;
-        };
-    in
-    flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-      in
-      {
-        packages.default = defaultNvim pkgs;
-        mkNvim = { languages }: mkNvim { inherit pkgs languages; };
-        devShells.default = pkgs.mkShell {
-          shellHook = "exec fish";
-          buildInputs = [ (defaultNvim pkgs) ];
-        };
-        formatter = pkgs.nixfmt;
-      }
-    );
+    };
 }
