@@ -13,43 +13,34 @@
       systems = [
         "x86_64-linux"
         "aarch64-linux"
-        "x86_64-darwin"
         "aarch64-darwin"
       ];
 
-      imports = [ inputs.nixvim.flakeModules.default ];
-
-      nixvim = {
-        packages.enable = true;
-        checks.enable = true;
-      };
-
-      flake = {
-        nixvimModules.default = ./modules;
-        lib.mkNvim =
-          { system, languages }:
-          inputs.nixvim.lib.evalNixvim {
-            inherit system;
-            modules = [
-              self.nixvimModules.default
-              { languages = languages; }
-            ];
-          };
-      };
+      flake.lib.mkNvim =
+        { system, languages }:
+        inputs.nixvim.lib.evalNixvim {
+          inherit system;
+          modules = [
+            ./modules
+            { languages = languages; }
+          ];
+        };
 
       perSystem =
         { system, self', ... }:
         let
           pkgs = inputs.nixpkgs.legacyPackages.${system};
-        in
-        {
-          nixvimConfigurations.default = inputs.nixvim.lib.evalNixvim {
+          nvim = inputs.nixvim.lib.evalNixvim {
             inherit system;
             modules = [
-              self.nixvimModules.default
+              ./modules
               { languages.nix.enable = true; }
             ];
           };
+        in
+        {
+          packages.default = nvim.config.build.package;
+          checks.default = nvim.config.build.test;
 
           devShells.default = pkgs.mkShell {
             shellHook = "exec fish";
