@@ -48,7 +48,10 @@
         };
       };
       # lsp-status.enable = true;
-      lspkind.enable = true;
+      lspkind = {
+        enable = true;
+        cmp.enable = false;
+      };
       luasnip.enable = true;
       none-ls.enable = true;
       dropbar = {
