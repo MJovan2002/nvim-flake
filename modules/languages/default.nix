@@ -47,7 +47,6 @@
           snacks.layout.preset = "vertical";
         };
       };
-      # lsp-status.enable = true;
       lspkind = {
         enable = true;
         cmp.enable = false;

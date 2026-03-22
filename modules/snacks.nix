@@ -1,8 +1,4 @@
 {
-  # pkgs,
-  ...
-}:
-{
   plugins.snacks = {
     enable = true;
     settings = {
@@ -17,7 +13,6 @@
       scope.enabled = true;
       scroll.enabled = true;
       statuscolumn = {
-        # enabled = true;
         enabled = false;
         folds = {
           open = true;

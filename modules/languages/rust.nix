@@ -1,14 +1,15 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 lib.mkIf config.languages.rust.enable {
   dependencies.rust-analyzer.packageFallback = true;
+  extraPackages = [ pkgs.bacon ];
   plugins = {
     lsp.servers = {
       taplo.enable = true;
-      # bacon_ls.enable = true;
-      # bacon_ls.package = null;
-      # rust_analyzer.enable = true;
-      # rust_analyzer.installRustc = false;
-      # rust_analyzer.installCargo = false;
     };
     rustaceanvim = {
       enable = true;
@@ -46,6 +47,26 @@ lib.mkIf config.languages.rust.enable {
     conform-nvim.settings.formatters_by_ft.rust = [ "rustfmt" ];
   };
 
+  extraConfigLua = ''
+    local function snacks_show_references(command)
+      local locations = command.arguments[3]
+      if not locations or #locations == 0 then return end
+      if #locations == 1 then
+        vim.lsp.util.show_document(locations[1], "utf-8", { focus = true })
+      else
+        vim.fn.setqflist(vim.lsp.util.locations_to_items(locations, "utf-8"))
+        Snacks.picker.qflist()
+      end
+    end
+
+    local function snacks_goto_location(command)
+      local location = command.arguments[1]
+      if location then
+        vim.lsp.util.show_document(location, "utf-8", { focus = true })
+      end
+    end
+  '';
+
   autoCmd = [
     {
       event = "LspAttach";
@@ -53,6 +74,8 @@ lib.mkIf config.languages.rust.enable {
         function(args)
           local client = vim.lsp.get_client_by_id(args.data.client_id)
           if not client or client.name ~= "rust-analyzer" then return end
+          client.commands["rust-analyzer.showReferences"] = snacks_show_references
+          client.commands["rust-analyzer.gotoLocation"] = snacks_goto_location
           local buf = args.buf
           local map = function(key, cmd, desc)
             vim.keymap.set("n", key, "<cmd>RustLsp " .. cmd .. "<CR>", { buffer = buf, desc = desc })

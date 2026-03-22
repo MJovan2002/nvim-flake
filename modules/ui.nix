@@ -45,7 +45,6 @@
         ];
       };
     };
-    # trouble.enable = true;
     web-devicons.enable = true;
     lualine = {
       enable = true;
@@ -68,10 +67,6 @@
               __unkeyed = lib.nixvim.mkRaw "require('noice').api.status.mode.get";
               cond = lib.nixvim.mkRaw "require('noice').api.status.mode.has";
             }
-            # {
-            #   __unkeyed = (lib.nixvim.mkRaw "require('noice').api.status.command.get");
-            #   cond = (lib.nixvim.mkRaw "require('noice').api.status.command.has");
-            # }
             { __unkeyed = "progress"; }
           ];
         };
@@ -140,4 +135,19 @@
   extraPlugins = [
     pkgs.vimPlugins.satellite-nvim
   ];
+
+  extraConfigLua = ''
+    local signs = {
+      DiagnosticSignError = "\u{f0159}",
+      DiagnosticSignWarn = "\u{f0026}",
+      DiagnosticSignInfo = "\u{f02fd}",
+      DiagnosticSignHint = "\u{f0335}",
+    }
+    for name, icon in pairs(signs) do
+      vim.fn.sign_define(name, { text = icon, texthl = name, numhl = "" })
+    end
+    vim.fn.sign_define("DapBreakpoint", { text = "\u{f0130}", texthl = "DapBreakpoint" })
+    vim.fn.sign_define("DapBreakpointCondition", { text = "\u{f0131}", texthl = "DapBreakpointCondition" })
+    vim.fn.sign_define("DapStopped", { text = "\u{f040a}", texthl = "DapStopped" })
+  '';
 }
