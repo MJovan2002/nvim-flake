@@ -137,15 +137,16 @@
   ];
 
   extraConfigLua = ''
-    local signs = {
-      DiagnosticSignError = "\u{f0159}",
-      DiagnosticSignWarn = "\u{f0026}",
-      DiagnosticSignInfo = "\u{f02fd}",
-      DiagnosticSignHint = "\u{f0335}",
-    }
-    for name, icon in pairs(signs) do
-      vim.fn.sign_define(name, { text = icon, texthl = name, numhl = "" })
-    end
+    vim.diagnostic.config({
+      signs = {
+        text = {
+          [vim.diagnostic.severity.ERROR] = "\u{f0159}",
+          [vim.diagnostic.severity.WARN] = "\u{f0026}",
+          [vim.diagnostic.severity.INFO] = "\u{f02fd}",
+          [vim.diagnostic.severity.HINT] = "\u{f0335}",
+        },
+      },
+    })
     vim.fn.sign_define("DapBreakpoint", { text = "\u{f0130}", texthl = "DapBreakpoint" })
     vim.fn.sign_define("DapBreakpointCondition", { text = "\u{f0131}", texthl = "DapBreakpointCondition" })
     vim.fn.sign_define("DapStopped", { text = "\u{f040a}", texthl = "DapStopped" })
