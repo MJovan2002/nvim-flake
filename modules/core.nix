@@ -152,7 +152,7 @@
       enable = true;
       settings = {
         separate_by_branch = true;
-        buffer_leader_key = "m";
+        buffer_leader_key = "-";
         show_icons = true;
         window.border = "rounded";
         per_buffer_config.satellite.enable = true;
