@@ -35,6 +35,30 @@ lib.mkIf cfg.enable (
     (lib.mkIf (cfg.lsp == "intellij") {
       extraPackages = lib.optional (cfg.intellij.package != null) cfg.intellij.package;
 
+      # IntelliJ ignores the document versions nvim sends and labels its edits with
+      # its own counter (didOpen version + 1 per change), while nvim uses changedtick.
+      # After any edit nvim then rejects renames/code actions with "Buffer ... newer
+      # than edits". The server has every didChange (same ordered pipe) before it
+      # computes the edit, so drop the bogus version for intellij-attached buffers.
+      extraConfigLua = ''
+        do
+          local util = vim.lsp.util
+          local apply = util.apply_workspace_edit
+          util.apply_workspace_edit = function(edit, encoding)
+            for _, change in ipairs(edit and edit.documentChanges or {}) do
+              local td = change.textDocument
+              if td and td.uri and td.version ~= nil and td.version ~= vim.NIL then
+                local bufnr = vim.fn.bufnr(vim.uri_to_fname(td.uri))
+                if bufnr > 0 and #vim.lsp.get_clients({ bufnr = bufnr, name = "intellij" }) > 0 then
+                  td.version = vim.NIL
+                end
+              end
+            end
+            return apply(edit, encoding)
+          end
+        end
+      '';
+
       # Definitions in libraries / the JDK come back as jar:// or jrt:/ URIs, which
       # nvim cannot read (empty buffer -> pickers fail with "cursor out of range").
       # Ask the server to decompile them, like intellij.nvim does.
