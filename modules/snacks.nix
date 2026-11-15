@@ -9,7 +9,19 @@
       notify.enabled = true;
       indent.enabled = true;
       input.enabled = true;
-      picker.enabled = true;
+      picker = {
+        enabled = true;
+        # fd/rg only honour .gitignore inside git repos, so exclude explicitly.
+        sources =
+          let
+            exclude = [ "node_modules" ];
+          in
+          {
+            files = { inherit exclude; };
+            grep = { inherit exclude; };
+            grep_word = { inherit exclude; };
+          };
+      };
       scope.enabled = true;
       scroll.enabled = true;
       statuscolumn = {
