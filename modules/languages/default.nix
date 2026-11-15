@@ -18,7 +18,22 @@
     };
     cpp.enable = lib.mkEnableOption "C++ language support";
     csharp.enable = lib.mkEnableOption "C# language support";
-    java.enable = lib.mkEnableOption "Java language support";
+    java = {
+      enable = lib.mkEnableOption "Java language support";
+      lsp = lib.mkOption {
+        type = lib.types.enum [
+          "jdtls"
+          "intellij"
+        ];
+        default = "jdtls";
+        description = "Java language server: jdtls (via nvim-java) or JetBrains' IntelliJ server";
+      };
+      intellij.package = lib.mkOption {
+        type = lib.types.nullOr lib.types.package;
+        default = null;
+        description = "Package providing the `intellij-lsp` command; null = take it from PATH";
+      };
+    };
     typst.enable = lib.mkEnableOption "Typst language support";
   };
 
