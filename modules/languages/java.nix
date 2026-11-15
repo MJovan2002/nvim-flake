@@ -76,7 +76,29 @@ lib.mkIf cfg.enable (
             end
           '';
         }
+        {
+          # Requests sent before indexing finishes come back empty/cancelled. The server
+          # asks for a semanticTokens + diagnostic refresh afterwards, but not for inlay
+          # hints or code lens, so those only appeared after moving the cursor.
+          event = "LspProgress";
+          pattern = "end";
+          callback.__raw = ''
+            function(ev)
+              local client = vim.lsp.get_client_by_id(ev.data.client_id)
+              if not client or client.name ~= "intellij" then
+                return
+              end
+              local ctx = { client_id = client.id, method = "" }
+              for _, m in ipairs({ "workspace/inlayHint/refresh", "workspace/codeLens/refresh" }) do
+                ctx.method = m
+                pcall(vim.lsp.handlers[m], nil, nil, ctx)
+              end
+            end
+          '';
+        }
       ];
+
+      lsp.inlayHints.enable = true;
 
       lsp.servers.intellij = {
         enable = true;
@@ -91,6 +113,20 @@ lib.mkIf cfg.enable (
             end
           '';
           filetypes = [ "java" ];
+          # Answered to the server's `workspace/configuration` request for section
+          # "jetbrains.java" (keys from the VS Code extension, spaces included).
+          # Without it the server enables no inlay hints at all.
+          settings.jetbrains.java = {
+            hints = {
+              "collapse complex types" = true;
+              settings."method parameter" = true;
+              types = {
+                "local variable" = true;
+                "call chain" = true;
+              };
+            };
+            settings.types."lambda parameter" = true;
+          };
           # IntelliJ cancels pull-diagnostic requests (e.g. while indexing) with
           # `"data": null`; nvim 0.12's handler only checks `error.data == nil`
           # and crashes indexing vim.NIL. Normalize it before delegating.
