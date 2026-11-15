@@ -47,6 +47,17 @@ lib.mkIf cfg.enable (
             end
           '';
           filetypes = [ "java" ];
+          # IntelliJ cancels pull-diagnostic requests (e.g. while indexing) with
+          # `"data": null`; nvim 0.12's handler only checks `error.data == nil`
+          # and crashes indexing vim.NIL. Normalize it before delegating.
+          handlers."textDocument/diagnostic".__raw = ''
+            function(err, result, ctx)
+              if err ~= nil and err.data == vim.NIL then
+                err.data = nil
+              end
+              return vim.lsp.diagnostic.on_diagnostic(err, result, ctx)
+            end
+          '';
           # Outermost pom.xml (multi-module Maven), else Gradle / git root.
           root_dir.__raw = ''
             function(bufnr, on_dir)
