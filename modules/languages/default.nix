@@ -35,6 +35,10 @@
       };
     };
     typst.enable = lib.mkEnableOption "Typst language support";
+    web = {
+      enable = lib.mkEnableOption "TypeScript/JavaScript, HTML, CSS and JSON support";
+      angular.enable = lib.mkEnableOption "Angular language server (templates)";
+    };
   };
 
   imports =
